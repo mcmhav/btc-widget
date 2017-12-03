@@ -4,7 +4,33 @@
   android:layout_height="match_parent"
   android:background="#11FFFFFF"
   android:padding="@dimen/widget_margin"
+  android:id="@+id/tvWidget2"
 >
+  <!-- <com.github.mikephil.charting.charts.BubbleChart
+    android:id="@+id/chart1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:layout_above="@+id/seekBar1"
+  /> -->
+  <!-- <com.jjoe64.graphview.GraphView
+    android:layout_width="match_parent"
+    android:layout_height="150dp"
+    android:id="@+id/graph"
+  /> -->
+  <!-- <com.androidplot.xy.XYPlot
+    android:id="@+id/plot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+  /> -->
+
+  <ProgressBar
+     android:id="@+id/progressBar1"
+     style="?android:attr/progressBarStyleSmall"
+     android:layout_width="wrap_content"
+     android:layout_height="wrap_content"
+     android:layout_alignParentLeft="true"
+  />
   <TextView
     android:id="@+id/tvWidget"
     android:layout_width="wrap_content"

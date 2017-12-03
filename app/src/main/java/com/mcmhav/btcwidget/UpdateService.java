@@ -14,6 +14,9 @@ import java.util.Random;
 import java.util.List;
 import java.util.ArrayList;
 
+import android.widget.ProgressBar;
+import android.view.View;
+
 // helpers:
 import com.mcmhav.btcwidget.helpers.LogH;
 import com.mcmhav.btcwidget.GetUrlContentTask;
@@ -26,14 +29,23 @@ public class UpdateService extends Service {
       return null;
   }
 
-  List<String> values = new ArrayList<String>();
+  private ProgressBar spinner;
 
+  List<String> values = new ArrayList<String>();
 
   public void onBackgroundTaskCompleted(String result) {
     values.add(result);
+    if (values.size() > 10) {
+      values.remove(0);
+    }
     LogH.d(values.toString());
-    RemoteViews view = new RemoteViews(getPackageName(), R.layout.updating_widget);
+    RemoteViews view = new RemoteViews(
+      getPackageName(),
+      R.layout.updating_widget
+    );
     view.setTextViewText(R.id.tvWidget, result);
+    view.setViewVisibility(R.id.progressBar1, View.GONE);
+
     ComponentName theWidget = new ComponentName(this, UpdatingWidget.class);
     AppWidgetManager manager = AppWidgetManager.getInstance(this);
     manager.updateAppWidget(theWidget, view);
@@ -42,6 +54,15 @@ public class UpdateService extends Service {
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
     LogH.d("onStartCommand");
+
+    RemoteViews view = new RemoteViews(
+      getPackageName(),
+      R.layout.updating_widget
+    );
+    view.setViewVisibility(R.id.progressBar1, View.VISIBLE);
+    ComponentName theWidget = new ComponentName(this, UpdatingWidget.class);
+    AppWidgetManager manager = AppWidgetManager.getInstance(this);
+    manager.updateAppWidget(theWidget, view);
 
     String url = "https://api.bitfinex.com/v1/pubticker/btcusd";
 

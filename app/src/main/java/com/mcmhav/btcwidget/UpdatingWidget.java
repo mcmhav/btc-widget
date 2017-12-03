@@ -10,6 +10,9 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 
+import android.widget.RemoteViews;
+
+// helpers:
 import com.mcmhav.btcwidget.helpers.LogH;
 
 /**
@@ -17,26 +20,56 @@ import com.mcmhav.btcwidget.helpers.LogH;
  */
 public class UpdatingWidget extends AppWidgetProvider {
   private PendingIntent service;
+  private final int updateInterval = 60000;
+  private static final String ACTION_SIMPLEAPPWIDGET = "ACTION_BROADCASTWIDGETSAMPLE";
+
+  static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
+
+    // Construct the RemoteViews object
+    RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.updating_widget);
+    // Construct an Intent which is pointing this class.
+    Intent intent = new Intent(context, UpdatingWidget.class);
+    intent.setAction(ACTION_SIMPLEAPPWIDGET);
+    // And this time we are sending a broadcast with getBroadcast
+    PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+    views.setOnClickPendingIntent(R.id.tvWidget2, pendingIntent);
+    // Instruct the widget manager to update the widget
+    appWidgetManager.updateAppWidget(appWidgetId, views);
+  }
 
   @Override
   public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
+    LogH.breakerTop();
+
     final AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
     final Intent i = new Intent(context, UpdateService.class);
 
     if (service == null) {
         service = PendingIntent.getService(context, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
     }
-    manager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), 60000, service);
-    //if you need to call your service less than 60 sec
-    //answer is here:
-    //http://stackoverflow.com/questions/29998313/how-to-run-background-service-after-every-5-sec-not-working-in-android-5-1
+    manager.setRepeating(
+      AlarmManager.ELAPSED_REALTIME,
+      SystemClock.elapsedRealtime(),
+      updateInterval,
+      service
+    );
+
     LogH.d("onUpdate");
+    for (int appWidgetId : appWidgetIds) {
+      updateAppWidget(context, appWidgetManager, appWidgetId);
+    }
   }
 
   @Override
   public void onReceive(Context context, Intent intent) {
     super.onReceive(context, intent);
     LogH.d("onReceive");
+    if (ACTION_SIMPLEAPPWIDGET.equals(intent.getAction())) {
+      LogH.d("calling service?!");
+      Intent i = new Intent(context, UpdateService.class);
+      context.startService(i);
+    }
   }
 
   @Override
