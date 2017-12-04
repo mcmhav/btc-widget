@@ -33,6 +33,12 @@ public class GetUrlContentTask extends AsyncTask<String, Integer, String> {
       connection = (HttpURLConnection) url.openConnection();
       connection.connect();
 
+      int statuscode = connection.getResponseCode();
+
+      if (statuscode != HttpURLConnection.HTTP_OK) {
+        LogH.d("statuscode: " + statuscode);
+        return null;
+      }
 
       InputStream stream = connection.getInputStream();
 

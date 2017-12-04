@@ -32,41 +32,51 @@ public class UpdateService extends Service {
   private ProgressBar spinner;
 
   List<String> values = new ArrayList<String>();
+  boolean isRunning = false;
 
   public void onBackgroundTaskCompleted(String result) {
-    values.add(result);
-    if (values.size() > 10) {
-      values.remove(0);
-    }
-    LogH.d(values.toString());
     RemoteViews view = new RemoteViews(
       getPackageName(),
       R.layout.updating_widget
     );
-    view.setTextViewText(R.id.tvWidget, result);
+
+    if (result != "") {
+      values.add(result);
+      if (values.size() > 10) {
+        values.remove(0);
+      }
+      LogH.d(values.toString());
+      view.setTextViewText(R.id.tvWidget, result);
+    }
+
     view.setViewVisibility(R.id.progressBar1, View.GONE);
 
     ComponentName theWidget = new ComponentName(this, UpdatingWidget.class);
     AppWidgetManager manager = AppWidgetManager.getInstance(this);
     manager.updateAppWidget(theWidget, view);
+    isRunning = false;
   }
 
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
+    LogH.breakerSmall();
     LogH.d("onStartCommand");
 
-    RemoteViews view = new RemoteViews(
-      getPackageName(),
-      R.layout.updating_widget
-    );
-    view.setViewVisibility(R.id.progressBar1, View.VISIBLE);
-    ComponentName theWidget = new ComponentName(this, UpdatingWidget.class);
-    AppWidgetManager manager = AppWidgetManager.getInstance(this);
-    manager.updateAppWidget(theWidget, view);
+    if (!isRunning) {
+      isRunning = true;
+      RemoteViews view = new RemoteViews(
+        getPackageName(),
+        R.layout.updating_widget
+      );
+      view.setViewVisibility(R.id.progressBar1, View.VISIBLE);
+      ComponentName theWidget = new ComponentName(this, UpdatingWidget.class);
+      AppWidgetManager manager = AppWidgetManager.getInstance(this);
+      manager.updateAppWidget(theWidget, view);
 
-    String url = "https://api.bitfinex.com/v1/pubticker/btcusd";
+      String url = "https://api.bitfinex.com/v1/pubticker/btcusd";
 
-    new GetUrlContentTask(this).execute(url);
+      new GetUrlContentTask(this).execute(url);
+    }
 
     return super.onStartCommand(intent, flags, startId);
   }

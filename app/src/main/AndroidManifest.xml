@@ -18,6 +18,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
         <receiver android:name="com.mcmhav.btcwidget.UpdatingWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
@@ -27,7 +28,7 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/updating_widget_info"/>
         </receiver>
+
         <service android:name="com.mcmhav.btcwidget.UpdateService" />
     </application>
-
 </manifest>
